@@ -1,0 +1,41 @@
+Title         : 中文分词
+Author        : lnest
+Logo          : True
+Package       : [UTF8]ctex
+
+[TITLE]
+
+# 分词概述
+中文分词(Chinese Word Segmentation) 指的是将一个汉字序列切分成一个一个单独的词。分词就是将连续的字序列按照一定的规范重新组合成词序列的过程
+
+# 结巴分词设计算法
+* 基于前缀词典（Trie树）实现词图扫描，生成句子中汉字所有可能成词情况所构成的有向无环图（DAG），采用动态规划查找最大概率路径，找出基于词频的最大切分组合
+* 对于未登录词，采用了基于汉字成词能力的 HMM模型，采用Viterbi算法进行计算
+* 基于Viterbi算法的词性标注
+* 分别基于tfidf和textrank模型抽取关键词
+
+## 基于前缀词典及动态规划实现分词
+
+jieba分词主要是基于统计词典，构造一个前缀词典；然后利用前缀词典对输入句子进行切分，得到所有的切分可能，根据切分位置，构造一个有向无环图；通过动态规划算法，计算得到最大概率路径，也就得到了最终的切分形式。
+
+1. 前缀词典构建：如统计词典中的词“北京大学”的前缀分别是“北”、“北京”、“北京大”；词“大学”的前缀是“大”。
+2. 有向无环图构建：然后基于前缀词典，对输入文本进行切分，对于“去”，没有前缀，那么就只有一种划分方式；对于“北”，则有“北”、“北京”、“北京大学”三种划分方式；对于“京”，也只有一种划分方式；对于“大”，则有“大”、“大学”两种划分方式，依次类推，可以得到每个字开始的前缀词的划分方式。
+![fenci]
+
+[fenci]: images/fenci.png "fenci" { width:auto; max-width:90% }
+
+3. 最大概率路径计算
+在得到所有可能的切分方式构成的有向无环图后，我们发现从起点到终点存在多条路径，多条路径也就意味着存在多种分词结果。因此，我们需要计算最大概率路径，也即按照这种方式切分后的分词结果的概率最大。在采用动态规划计算最大概率路径时，每到达一个节点，它前面的节点到终点的最大路径概率已经计算出来。  
+有向无环图DAG的每个节点，都是带权的，对于在前缀词典里面的词语，其权重就是它的词频；我们想要求得route = (w1,w2,w3,...,wn)，使得 ∑weight(wi) 最大。  
+如果需要使用动态规划求解，需要满足两个条件：  
+  **重复子问题**   
+  **最优子结构**  
+我们来分析一下最大概率路径问题，是否满足动态规划的两个条件
+
+* Explore the upper-right toolbox menu to discover how Markdown works. 
+* `Alt-Q` reformats the current paragraph.
+
+# Reference
+* [结巴分词原理介绍](http://research.microsoft.com/en-us/um/people/daan/madoko/doc/reference.html  "Madoko reference manual")
+* [结巴分词系统介绍](https://www.cnblogs.com/zhbzz2007/p/6076246.html?utm_source=itdadao&utm_medium=referral%C2%A0)
+* [基于前缀词典及动态规划实现分词](https://www.cnblogs.com/zhbzz2007/p/6076246.html?utm_source=itdadao&utm_medium=referral%C2%A0)
