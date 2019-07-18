@@ -1,0 +1,112 @@
+[INCLUDE=presentation]
+Title         : 招中标项目总结
+Sub Title     : 从最大熵到条件随机场算法
+Author        : 同文地
+Affiliation   : 人工智能中心
+Reveal Theme  : sky
+Beamer Theme  : singapore
+Package       : [UTF8]ctex
+
+
+[TITLE]
+
+# Content
+
+[TOC]
+
+# 招中标项目简介
+
+## 项目简介
+
+从各地方政府招投标网站爬取带有html标签的数据，利用html解析工具获取文本以及表格数据，在利用自然语言处理的方法，得到结构化信息。
+
+**项目主要划分为为四个流程：**    
+
+* **html解析：**利用Beautiful工具解析html数据，获取表格和文本信息
+* **文本获取：**利用关键词定位文本，按照分隔符划分，摘取可能的目标句子
+* **实体解析:**在RNet模型基础上，将输出层转换为序列标注模型，进行实体抽取
+> 主要涉及的字段包括：招标人、中标人、候选人、代理机构
+* **规则解析字段：**其他简单的字段利用正则表达式匹配的方法解析，如“项目编号”、“电话邮箱”、“发布时间”等
+
+## 数据处理流程
+
+~ Center
+![流程图]
+
+[流程图]: images/-.png "流程图" { width:auto; max-width:90% }
+
+~
+
+## 形成的工具
+
+~ Align-Left
+* [html解析工具](http://git.bbdops.com/BBD-AI-Lab/html_parser_tools)
+~
+
+# 序列标注
+
+## 最大熵模型
+
+最大熵原理是概率模型学习的一个准则最大滴原理认为，学习概率模型时，在所有可能的概率模型（分布）中，熵最大的模型是最好的模型。
+
+假设离散随机变量X的概率分布为$p(x)$，熵的计算公式为：
+
+~ Equation { #eq-entorpy }
+H(p) = - \sum_{x} P(x) \log p(x)
+~
+
+熵满足的不等式为：
+~ Equation { #eq-entropy-inequality }
+0 \leq H(p) \leq |x|
+~
+
+其中|x|表示x的取值个数，当且仅当X的分布是均匀分布时右边的等号成立，也就是说X服从均匀分布的时，熵最大。
+
+~ Align-Left
+* Reference
+
+[吉布斯不等式](https://zh.wikipedia.org/wiki/%E5%90%89%E5%B8%83%E6%96%AF%E4%B8%8D%E7%AD%89%E5%BC%8F)
+~
+
+## 最大熵的一个例子
+* 假设随机变量X表示一次摇骰子获得的点数，取值范围为[1,2,...,6],要估计取各个值的概率。在没有任何其他信息的情况下，最大熵模型下认为各个点数的概率是均匀分布时，概率估计结果是最好的
+* 如果加入一些先验知识，如：筛子摇到1和6的概率分别为1/3,摇到[2,3,4,5]的概率为1/3/4 = 1/12
+
+~ Begin Vertical { data-background:Gainsboro }
+## 最大熵模型的数学描述_1
+给定一个训练集：$T = \{(x_1, y_1), (x_2, y_2), ..., (x_N, y_N)\}$
+~ Center
+![最大熵1]
+
+[最大熵1]: images/-1.png "最大熵1" { width:auto; max-width:90%; max-height:80% }
+~
+
+## 最大熵模型的数学描述_2
+~ Center
+![最大熵2]
+
+[最大熵2]: images/-2.png "最大熵2" { width:auto; max-width:90% }
+~
+
+## 最大熵模型的数学描述_3
+~ Center
+![最大熵6]
+
+[最大熵6]: images/-6.png "最大熵6" { width:auto; max-width:90% }
+
+~
+
+## 最大熵模型的数学描述_4
+~ Center
+![最大熵4]
+
+[最大熵4]: images/-4.png "最大熵4" { width:auto; max-width:90% }
+![最大熵5]
+
+[最大熵5]: images/-5.png "最大熵5" { width:auto; max-width:90% }
+~
+
+~ End Vertical
+
+## 最大熵马尔科夫模型（MEMM）
+
